@@ -27,13 +27,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, onMounted } from 'vue'
+import { defineComponent, PropType, reactive, onMounted, createBlock } from 'vue'
 import { emitter } from './ValidateForm.vue'
 const emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 interface RuleProp{
-  type: 'required' | 'email';
+  type: 'required' | 'email' | 'custom';
   message: string;
+  validator?: () => boolean
 }
 export type RulesProp = RuleProp[]
 export type TagType = 'input' | 'textarea'
@@ -50,7 +51,6 @@ export default defineComponent({
   },
   inheritAttrs: false,
   setup (props, context) {
-    console.log('%c 🍖 context: ', 'font-size:20px;background-color: #F5CE50;color:#fff;', context.attrs)
     const inputRef = reactive({
       val: props.modelValue || '',
       error: false,
@@ -72,6 +72,9 @@ export default defineComponent({
               break
             case 'email':
               passed = emailReg.test(inputRef.val)
+              break
+            case 'custom':
+              passed = rule.validator ? rule.validator() : true
               break
             default:
               break

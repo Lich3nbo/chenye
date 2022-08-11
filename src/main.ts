@@ -5,6 +5,7 @@ import App from './App.vue'
 import axios from 'axios'
 
 axios.interceptors.request.use((config) => {
+  store.commit('setError', { status: false })
   store.commit('setLoading', true)
   return config
 })
