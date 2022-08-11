@@ -14,6 +14,12 @@ axios.interceptors.response.use((config) => {
     store.commit('setLoading', false)
   }, 3000)
   return config
+}, (err) => {
+  console.log(err)
+  const { error } = err.response.data
+  store.commit('setError', { status: true, message: error })
+  store.commit('setLoading', false)
+  return Promise.reject(error)
 })
 
 const app = createApp(App)

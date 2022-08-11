@@ -38,6 +38,9 @@ export default defineComponent({
     ValidateForm
   },
   setup () {
+    // account information （ 账户信息 ）
+    // email: 111@test.com
+    // ps: 111111
     const router = useRouter()
     const store = useStore()
     const emailVal = ref('')
@@ -51,8 +54,16 @@ export default defineComponent({
     ]
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        store.commit('login')
-        router.push('/')
+        const payload = {
+          email: emailVal.value,
+          password: passwordVal.value
+        }
+        store.dispatch('loginAndFetch', payload).then(data => {
+          console.log(data)
+          router.push('/')
+        }).catch(e => {
+          console.log(e)
+        })
       }
     }
     return {
