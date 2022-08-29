@@ -4,6 +4,7 @@
     <up-loader
       action="/api/upload"
       :beforeUploader="uploadCheck"
+      @file-uploaded="handleFileUploaded"
       class="d-flex align-items-center justify-content-center bg-light text-secondary w100 my-4"
     >
       <h2>点击上传头图</h2>
@@ -52,7 +53,7 @@ import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import axios from 'axios'
-import { GLobalDataProps, PostProps } from '../store'
+import { GLobalDataProps, PostProps, ResponseType, ImageProps } from '../store'
 import ValidateForm from '../components/ValidateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import UpLoader from '../components/UpLoader.vue'
@@ -69,6 +70,7 @@ export default defineComponent({
     const store = useStore<GLobalDataProps>()
     const router = useRouter()
     const titleVal = ref('')
+    let imageId = ''
     const titleRules: RulesProp = [
       { type: 'required', message: '文章标题不能为空' }
     ]
@@ -76,19 +78,31 @@ export default defineComponent({
     const contentRules: RulesProp = [
       { type: 'required', message: '文章详情不能为空' }
     ]
+    const handleFileUploaded = (rawData: ResponseType<ImageProps>) => {
+      if (rawData.data._id) {
+        imageId = rawData.data._id
+      }
+    }
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        const { column } = store.state.user
+        const { column, _id } = store.state.user
         if (!column) { return }
         const newPost: PostProps = {
-          _id: new Date().getTime() + '',
           title: titleVal.value,
           content: contentVal.value,
+          author: _id, // 用户id
           createdAt: new Date().toLocaleString(),
           column
         }
-        store.commit('createPost', newPost)
-        router.push({ name: 'column', params: { id: column } })
+        if (imageId) {
+          newPost.image = imageId
+        }
+        store.dispatch('createPost', newPost).then(res => {
+          createMessage('创建文章成功 2后跳转到文章', 'success', 2000)
+          setTimeout(() => {
+            router.push({ name: 'column', params: { id: column } })
+          }, 2000)
+        })
       }
     }
     const handleFileChange = (e: Event) => {
@@ -125,7 +139,8 @@ export default defineComponent({
       contentRules,
       onFormSubmit,
       handleFileChange,
-      uploadCheck
+      uploadCheck,
+      handleFileUploaded
     }
   }
 })

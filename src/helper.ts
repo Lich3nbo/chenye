@@ -1,5 +1,15 @@
-// 验证文件格式大小
+import { ColumnProps } from './store'
+export function gennerateFitUrl (column: ColumnProps, width: number, height: number) {
+  if (column.avatar) {
+    column.avatar.fitUrl = column.avatar.url + `?x-oss-process=image/resize,m_fill,h_${height},w_${width}`
+  } else {
+    column.avatar = {
+      fitUrl: require('@/assets/column.jpg')
+    }
+  }
+}
 
+// 验证文件格式大小
 interface CheckCondition {
   format?: string[]; // 格式
   size?: number; // 大小 M

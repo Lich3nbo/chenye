@@ -18,7 +18,8 @@ export interface UserProps {
 export interface ImageProps {
   _id?: string,
   url?: string,
-  createdAt?: string
+  createdAt?: string;
+  fitUrl?: string;
 }
 
 export interface ColumnProps {
@@ -29,13 +30,13 @@ export interface ColumnProps {
 }
 
 export interface PostProps {
-  _id: string;
   title: string;
   content?: string;
-  image?: ImageProps;
+  image?: ImageProps | string;
   excerpt?: string;
   createdAt: string;
   column: string;
+  author?: string;
 }
 
 export interface GlobalErrorProps {
@@ -110,13 +111,16 @@ const store = createStore<GLobalDataProps>({
       getAndCommit('/api/columns?currentPage=1&pageSize=5', 'fetchColumns', commit)
     },
     fetchColumn ({ commit }, cid) {
-      getAndCommit(`/api/columns/${cid}`, 'fetchColum', commit)
+      getAndCommit(`/api/columns/${cid}`, 'fetchColumn', commit)
     },
     fetchPosts ({ commit }, cid) {
       getAndCommit(`/api/columns/${cid}/posts?currentPage=1&pageSize=5`, 'fetchPosts', commit)
     },
     fetchCurrentUser ({ commit }) {
       return getAndCommit('/api/user/current', 'fetchCurrentUser', commit)
+    },
+    createPost ({ commit }, payload) {
+      return postAndCommit('/api/posts', 'createPost', commit, payload)
     },
     login ({ commit }, payload) {
       return postAndCommit('/api/user/login', 'login', commit, payload)
