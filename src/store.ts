@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { Commit, createStore } from 'vuex'
 
+export interface ResponseType<P> {
+  code: number;
+  msg: string;
+  data:P;
+}
+
 export interface UserProps {
   isLogin: boolean;
   nickName?: string;
@@ -9,7 +15,7 @@ export interface UserProps {
   email?: string;
 }
 
-interface ImageProps {
+export interface ImageProps {
   _id?: string,
   url?: string,
   createdAt?: string
@@ -48,6 +54,7 @@ export interface GLobalDataProps {
 const getAndCommit = async (url: string, mutationName: string, commit: Commit) => {
   const { data } = await axios.get(url)
   commit(mutationName, data)
+  return data
 }
 const postAndCommit = async (url: string, mutationName: string, commit: Commit, payload: any) => {
   const { data } = await axios.post(url, payload)
@@ -91,6 +98,11 @@ const store = createStore<GLobalDataProps>({
       state.token = token
       localStorage.setItem('token', token)
       axios.defaults.headers.common.Authorization = `Bearer ${token}`
+    },
+    logout (state) {
+      state.token = ''
+      localStorage.removeItem('token')
+      delete axios.defaults.headers.common.Authorization
     }
   },
   actions: {
@@ -104,7 +116,7 @@ const store = createStore<GLobalDataProps>({
       getAndCommit(`/api/columns/${cid}/posts?currentPage=1&pageSize=5`, 'fetchPosts', commit)
     },
     fetchCurrentUser ({ commit }) {
-      getAndCommit('/api/user/current', 'fetchCurrentUser', commit)
+      return getAndCommit('/api/user/current', 'fetchCurrentUser', commit)
     },
     login ({ commit }, payload) {
       return postAndCommit('/api/user/login', 'login', commit, payload)

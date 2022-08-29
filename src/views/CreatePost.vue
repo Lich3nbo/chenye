@@ -1,6 +1,24 @@
 <template>
   <div class="create-post-container">
     <h3>新建文章</h3>
+    <up-loader
+      action="/api/upload"
+      :beforeUploader="uploadCheck"
+      class="d-flex align-items-center justify-content-center bg-light text-secondary w100 my-4"
+    >
+      <h2>点击上传头图</h2>
+      <template #loading>
+        <div class="d-flex">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <h2>正在上传</h2>
+        </div>
+      </template>
+      <template #uploaded="slotProps">
+        <img :src="slotProps.uploadedData.data.url" alt="">
+      </template>
+    </up-loader>
     <validate-form @form-submit="onFormSubmit">
       <div class="mb-3">
         <label class="form-label">文章标题</label>
@@ -33,14 +51,19 @@
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import axios from 'axios'
 import { GLobalDataProps, PostProps } from '../store'
 import ValidateForm from '../components/ValidateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
+import UpLoader from '../components/UpLoader.vue'
+import { beforeUploadCheck } from '../helper'
+import createMessage from '@/components/createMessage'
 export default defineComponent({
   name: 'CreatePost',
   components: {
     ValidateForm,
-    ValidateInput
+    ValidateInput,
+    UpLoader
   },
   setup () {
     const store = useStore<GLobalDataProps>()
@@ -68,17 +91,55 @@ export default defineComponent({
         router.push({ name: 'column', params: { id: column } })
       }
     }
+    const handleFileChange = (e: Event) => {
+      const target = e.target as HTMLInputElement
+      const files = target.files
+      if (files) {
+        const uploadFile = files[0]
+        const formData = new FormData()
+        formData.append(uploadFile.name, uploadFile)
+        axios.post('/api/upload', formData, {
+          headers: {
+            'Content-type': 'multipart/form-data'
+          }
+        }).then(res => {
+          console.log('%c 🥪 res: ', 'font-size:20px;background-color: #93C0A4;color:#fff;', res)
+        })
+      }
+    }
+    const uploadCheck = (file: File) => {
+      const result = beforeUploadCheck(file, { format: ['image/png', 'image/jpeg'], size: 2 })
+      const { passed, error } = result
+      if (error === 'format') {
+        createMessage('上传图片只能是 JPG/PNG 格式', 'error')
+      }
+      if (error === 'size') {
+        createMessage('上传图片大小不能超过 2 M', 'error')
+      }
+      return passed
+    }
     return {
       titleVal,
       contentVal,
       titleRules,
       contentRules,
-      onFormSubmit
+      onFormSubmit,
+      handleFileChange,
+      uploadCheck
     }
   }
 })
 </script>
 
 <style>
-
+.create-post-container .file-upload-container{
+  width: 100%;
+  height: 200px;
+  cursor: pointer;
+}
+.create-post-container .file-upload-container img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 </style>
