@@ -7,6 +7,7 @@ import Login from './views/Login.vue'
 import ColumnDetail from './views/ColumnDetail.vue'
 import CreatePost from './views/CreatePost.vue'
 import SignUp from './views/SignUp.vue'
+import PostDetail from './views/PostDetail.vue'
 
 const routerHistory = createWebHashHistory()
 
@@ -21,6 +22,7 @@ const router = createRouter({
       meta: { redirectAlreadyLogin: true }
     },
     { path: '/column/:id', name: 'column', component: ColumnDetail },
+    { path: '/posts/:id', name: 'posts', component: PostDetail },
     {
       path: '/create',
       name: 'create',

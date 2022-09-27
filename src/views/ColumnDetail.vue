@@ -1,6 +1,6 @@
 <template>
   <div class="column-detail-page w-75 mx-auto">
-    <div class="column-info row mb-4 border-bottom pb-4 align-items-center">
+    <div class="column-info row mb-4 border-bottom pb-4 align-items-center" v-if="column">
       <div class="col-3 text-center">
         <img :src="column.avatar && column.avatar.fitUrl" :alt="column.title" class="rounded-circle">
       </div>
@@ -18,7 +18,7 @@ import PostList from '@/components/PostList.vue'
 import { computed, defineComponent, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-import { gennerateFitUrl } from '../helper'
+import { addColumnAvatar } from '../helper'
 
 export default defineComponent({
   name: 'ColumnDetail',
@@ -30,13 +30,14 @@ export default defineComponent({
     const route = useRoute()
     const currentId = route.params.id
     onMounted(() => {
+      console.log(1)
       store.dispatch('fetchColumn', currentId)
       store.dispatch('fetchPosts', currentId)
     })
     const column = computed(() => {
       const selectColumn = store.getters.getColumnById(currentId)
       if (selectColumn) {
-        gennerateFitUrl(selectColumn, 100, 100)
+        addColumnAvatar(selectColumn, 100, 100)
       }
       return selectColumn
     })

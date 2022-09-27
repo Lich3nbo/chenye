@@ -6,22 +6,21 @@ export interface ResponseType<P> {
   msg: string;
   data:P;
 }
-
-export interface UserProps {
-  isLogin: boolean;
-  nickName?: string;
-  _id?: string;
-  column?: string;
-  email?: string;
-}
-
 export interface ImageProps {
   _id?: string,
   url?: string,
   createdAt?: string;
   fitUrl?: string;
 }
-
+export interface UserProps {
+  isLogin: boolean;
+  nickName?: string;
+  _id?: string;
+  column?: string;
+  email?: string;
+  avatar?: ImageProps;
+  description?:string;
+}
 export interface ColumnProps {
   _id: string;
   title: string;
@@ -30,6 +29,7 @@ export interface ColumnProps {
 }
 
 export interface PostProps {
+  _id?: string;
   title: string;
   content?: string;
   image?: ImageProps | string;
@@ -48,7 +48,8 @@ export interface GLobalDataProps {
   token: string;
   loading: boolean;
   columns: ColumnProps[];
-  posts: PostProps[]
+  posts: PostProps[],
+  post: PostProps | null,
   user: UserProps
 }
 
@@ -70,6 +71,7 @@ const store = createStore<GLobalDataProps>({
     loading: false,
     columns: [],
     posts: [],
+    post: null,
     user: { isLogin: false }
   },
   mutations: {
@@ -84,6 +86,9 @@ const store = createStore<GLobalDataProps>({
     },
     fetchPosts (state, rawData) {
       state.posts = rawData.data.list
+    },
+    fetchPost (state, rawData) {
+      state.post = rawData.data
     },
     setLoading (state, status) {
       state.loading = status
@@ -115,6 +120,9 @@ const store = createStore<GLobalDataProps>({
     },
     fetchPosts ({ commit }, cid) {
       getAndCommit(`/api/columns/${cid}/posts?currentPage=1&pageSize=5`, 'fetchPosts', commit)
+    },
+    fetchPost ({ commit }, id) {
+      return getAndCommit(`/api/posts/${id}`, 'fetchPost', commit)
     },
     fetchCurrentUser ({ commit }) {
       return getAndCommit('/api/user/current', 'fetchCurrentUser', commit)

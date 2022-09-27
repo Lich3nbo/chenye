@@ -17,7 +17,7 @@
 <script lang="ts">
 import { computed, defineComponent, PropType } from 'vue'
 import { ColumnProps } from '../store'
-import { gennerateFitUrl } from '../helper'
+import { addColumnAvatar } from '../helper'
 
 export default defineComponent({
   name: 'ColumnList',
@@ -30,7 +30,7 @@ export default defineComponent({
   setup (props) {
     const columnList = computed(() => {
       return props.list.map(column => {
-        gennerateFitUrl(column, 100, 100)
+        addColumnAvatar(column, 100, 100)
         return column
       })
     })

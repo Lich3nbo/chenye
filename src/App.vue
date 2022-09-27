@@ -53,5 +53,7 @@ export default defineComponent({
 </script>
 
 <style>
-
+body {
+  font-family: 'Courier New', Courier, monospace;
+}
 </style>
